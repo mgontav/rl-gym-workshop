@@ -26,7 +26,7 @@ class Brain {
   static createChild(brainA, brainB) {
     let childBrain = brainA.network.crossover(brainB.network);
 
-    childBrain.mutate(0.1); // Mutate the child brain with a small mutation rate
+    childBrain.mutate(0.01); // Mutate the child brain with a small mutation rate
     return childBrain;
   }
 

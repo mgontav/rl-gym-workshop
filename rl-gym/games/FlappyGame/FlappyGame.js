@@ -7,14 +7,19 @@ const { Bodies, Composite } = Matter;
 
 class FlappyGame extends Game {
   /* INITIALIZATION */
+  static POPULATION_SIZE = 200;
 
   constructor(engine, options = {}) {
     super(engine, options);
     this.time = 0;
     this.pipeInterval = 100; // Interval for pipe generation
 
+    this.generation = 0;
+    this.score = 0;
+    this.maxScore = 0;
+
     ml5.setBackend("cpu"); // Set the backend for ml5.js
-    this.populationSize = options.populationSize || 200;
+    this.populationSize = options.populationSize || FlappyGame.POPULATION_SIZE;
 
     this.birds = [];
     for (let i = 0; i < this.populationSize; i++) {
@@ -41,7 +46,7 @@ class FlappyGame extends Game {
       this.options.width / 2,
       -100,
       this.options.width,
-      200,
+      200 - Bird.SIZE,
       config
     );
     topWall.plugin.particle = this;
@@ -50,7 +55,7 @@ class FlappyGame extends Game {
       this.options.width / 2,
       this.options.height + 100,
       this.options.width,
-      200,
+      200 - Bird.SIZE,
       config
     );
     bottomWall.plugin.particle = this;
@@ -80,7 +85,11 @@ class FlappyGame extends Game {
     }
   }
 
+  /*                   */
   /* LIFECYCLE METHODS */
+  /*                   */
+
+  /* DISPLAY METHODS */
 
   draw() {
     // Draw all birds
@@ -92,10 +101,29 @@ class FlappyGame extends Game {
 
     // Draw all Pipes
     this.pipes.forEach((pipe) => pipe.draw());
+
+    // Draw game stats
+    this.drawStats();
   }
+
+  drawStats() {
+    fill(0);
+    textFont("Courier New", 12);
+    textStyle(BOLD);
+    textAlign(LEFT, TOP);
+    text(`Score: ${this.score}`, 10, 10);
+    text(`Max Score: ${this.maxScore}`, 10, 30);
+    text(`Generation: ${this.generation}`, 10, 50);
+    text(`Birds Alive: ${this.birds.filter((b) => b.alive).length}`, 10, 70);
+  }
+
+  /* GAME LOGIC METHODS */
 
   tick() {
     this.time++;
+    this.score++; // Increment score for each tick
+    this.maxScore = Math.max(this.maxScore, this.score);
+
     this.updateBirds();
     this.updatePipes();
 
@@ -129,7 +157,7 @@ class FlappyGame extends Game {
     }
 
     // Add new pipes at regular intervals
-    if (frameCount % this.pipeInterval === 0) {
+    if (this.time % this.pipeInterval === 0) {
       // Every 60 frames
       this.pipes.push(
         new Pipe(this.engine, this.options.width, this.options.height)
@@ -165,7 +193,9 @@ class FlappyGame extends Game {
 
     this.pipes = this.pipes.slice(-1); // Keep only the last pipe
 
-    this.time = 0; // Reset the time counter
+    // Reset game stats
+    this.score = 0;
+    this.generation++;
   }
 
   /* COLLISION HANDLING */

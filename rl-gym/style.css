@@ -3,6 +3,30 @@ html, body {
   padding: 0;
 }
 
+body {
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#control-panel {
+  display: flex;
+  flex-direction: row;
+  height: 50px;
+  padding: 5px 10px;
+  justify-content: left;
+  align-items: center;
+  border: 1px solid #ccc;
+}
+
+#control-panel > div {
+  margin-right: 10px;
+}
+
 canvas {
-  display: block;
+  border: 1px solid #ccc;
+  display: flex;
 }

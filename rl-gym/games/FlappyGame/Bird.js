@@ -5,11 +5,14 @@ const { Bodies, Body, Composite } = Matter;
 
 class Bird {
   static collider = 0x002; // Unique identifier for the bird collider
+  static COOLDOWN = 2;
+  static SIZE = 10;
 
   constructor(engine, options = {}) {
-    this.size = 10;
+    this.size = Bird.SIZE;
     this.alive = true; // Flag to check if the bird is alive
     this.score = 0;
+    this.actionCooldown = 0;
 
     this.body = Bodies.circle(100, 100 + random(-25, 25), this.size, {
       collisionFilter: {
@@ -40,17 +43,23 @@ class Bird {
     if (this.alive) {
       this.score++;
 
-      const nextPipe = this.findNextPipe(context.pipes);
-      let inputs = [
-        this.body.position.y / context.height,
-        this.body.velocity.y / context.height,
-        nextPipe.topHeight / context.height,
-        (nextPipe.topPipe.position.x - this.body.position.x) / context.width,
-      ];
+      if (this.actionCooldown <= 0) {
+        const nextPipe = this.findNextPipe(context.pipes);
+        let inputs = [
+          this.body.position.y / context.height,
+          this.body.velocity.y / context.height,
+          nextPipe.topHeight / context.height,
+          (nextPipe.topPipe.position.x - this.body.position.x) / context.width,
+        ];
 
-      let action = this.birdBrain.getAction(inputs);
-      if (action === "flap") {
-        this.flap();
+        let action = this.birdBrain.getAction(inputs);
+        if (action === "flap") {
+          this.flap();
+        }
+
+        this.actionCooldown = Bird.COOLDOWN; // Reset cooldown
+      } else {
+        this.actionCooldown--;
       }
     }
   }
