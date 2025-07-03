@@ -108,8 +108,7 @@ class FlappyGame extends Game {
 
   drawStats() {
     fill(0);
-    textFont("Courier New", 12);
-    textStyle(BOLD);
+    textSize(8);
     textAlign(LEFT, TOP);
     text(`Score: ${this.score}`, 10, 10);
     text(`Max Score: ${this.maxScore}`, 10, 30);

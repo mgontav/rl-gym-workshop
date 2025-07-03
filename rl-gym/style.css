@@ -30,3 +30,13 @@ canvas {
   border: 1px solid #ccc;
   display: flex;
 }
+
+.press-start-2p-regular {
+  font-family: "Press Start 2P", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+button {
+  font-family: inherit;
+}
