@@ -3,9 +3,9 @@ const { Body, Bodies, Composite } = Matter;
 class Ball {
   static SIZE = 15; // Size of the ball
   static BALL_PHYSICS = {
-    restitution: 1, // Bouncy
+    restitution: 1.005, // Bouncy and gains a bit of speed on each bounce
     inertia: Infinity, // Infinite inertia to prevent rotation
-    friction: 0, // No friction
+    friction: 0, // No frictionw
     frictionAir: 0, // No air friction
     frictionStatic: 0, // No static friction
     density: 0.001, // Low density for easy movement
@@ -36,6 +36,8 @@ class Ball {
     fill("yellow");
     circle(this.body.position.x, this.body.position.y, Ball.SIZE);
     pop();
+
+    console.log(`Ball Y velocity: ${this.body.velocity.y}`);
   }
 
   reset() {

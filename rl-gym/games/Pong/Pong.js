@@ -9,8 +9,8 @@ class Pong extends Game {
     side: "left",
     color: "blue",
     controls: {
-      type: "keyboard",
-      keys: [87, 83],
+      type: "ai",
+      model: "followBall", // AI model to follow the ball
     },
   };
 
@@ -34,6 +34,7 @@ class Pong extends Game {
     // Initialize the two players
     this.players = [
       new PongPlayer(
+        this,
         engine,
         options.width,
         options.height,
@@ -41,6 +42,7 @@ class Pong extends Game {
         options.player1 || Pong.P1_OPTIONS
       ),
       new PongPlayer(
+        this,
         engine,
         options.width,
         options.height,

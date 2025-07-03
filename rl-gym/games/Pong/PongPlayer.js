@@ -5,7 +5,8 @@ class PongPlayer {
   static PLAYER_HEIGHT = 60; // Height of the player paddle
   static MOVE_SPEED = 5; // Speed of the player paddle movement
 
-  constructor(engine, width, height, wallWidth, playerOptions) {
+  constructor(game, engine, width, height, wallWidth, playerOptions) {
+    this.game = game;
     this.engine = engine;
 
     this.side = playerOptions.side; // "left" or "right"
@@ -31,6 +32,17 @@ class PongPlayer {
     this.body.plugin.particle = this;
 
     Composite.add(this.engine.world, this.body);
+
+    // Setup AI controls if they are specified
+    if (this.controls.type === "ai") {
+      if (this.controls.model === "followBall") {
+        this.brain = {
+          act: this.moveWithBall.bind(this),
+        };
+      } else {
+        // Add other AI models here
+      }
+    }
   }
 
   draw() {
@@ -49,6 +61,8 @@ class PongPlayer {
   update() {
     if (this.controls.type === "keyboard") {
       this.moveWithKeyboard();
+    } else {
+      this.brain.act();
     }
   }
 
@@ -60,17 +74,14 @@ class PongPlayer {
     });
   }
 
-  moveWithKeyboard() {
+  move(direction) {
     const maxY = height - PongPlayer.PLAYER_HEIGHT / 2 - this.wallWidth / 2;
     const minY = PongPlayer.PLAYER_HEIGHT / 2 + this.wallWidth / 2;
     let yMove = 0;
 
-    if (keyIsDown(this.controls.keys[0]) && this.body.position.y > minY) {
+    if (direction === "up" && this.body.position.y > minY) {
       yMove = -1; // Move up
-    } else if (
-      keyIsDown(this.controls.keys[1]) &&
-      this.body.position.y < maxY
-    ) {
+    } else if (direction === "down" && this.body.position.y < maxY) {
       yMove = 1; // Move down
     }
 
@@ -78,6 +89,29 @@ class PongPlayer {
       x: this.body.position.x,
       y: this.body.position.y + yMove * PongPlayer.MOVE_SPEED,
     });
+  }
+
+  moveWithKeyboard() {
+    if (keyIsDown(this.controls.keys[0])) {
+      this.move("up");
+    } else if (keyIsDown(this.controls.keys[1])) {
+      this.move("down");
+    }
+  }
+
+  moveWithBall() {
+    const ball = this.game.ball.body;
+
+    const targetY = ball.position.y;
+
+    // Calculate the new position for the player
+    let deltaY = targetY - this.body.position.y;
+
+    if (deltaY > 0) {
+      this.move("down");
+    } else if (deltaY < 0) {
+      this.move("up");
+    }
   }
 }
 
