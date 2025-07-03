@@ -2,6 +2,14 @@ const { Body, Bodies, Composite } = Matter;
 
 class Ball {
   static SIZE = 15; // Size of the ball
+  static BALL_PHYSICS = {
+    restitution: 1, // Bouncy
+    inertia: Infinity, // Infinite inertia to prevent rotation
+    friction: 0, // No friction
+    frictionAir: 0, // No air friction
+    frictionStatic: 0, // No static friction
+    density: 0.001, // Low density for easy movement
+  };
 
   constructor(engine, width, height) {
     this.engine = engine;
@@ -12,14 +20,7 @@ class Ball {
       width / 2,
       height / 2,
       Ball.SIZE / 2, // Radius is half the size
-      {
-        restitution: 1, // Bouncy
-        inertia: Infinity, // Infinite inertia to prevent rotation
-        friction: 0, // No friction
-        frictionAir: 0, // No air friction
-        frictionStatic: 0, // No static friction
-        density: 0.001, // Low density for easy movement
-      }
+      Ball.BALL_PHYSICS
     );
 
     this.body.plugin.particle = this;
@@ -39,19 +40,28 @@ class Ball {
 
   reset() {
     // Reset the ball to the center of the screen
-    Body.setPosition(this.body, {
-      x: this.width / 2,
-      y: this.height / 2,
-    });
+    Composite.remove(this.engine.world, this.body);
 
+    this.body = Bodies.circle(
+      this.width / 2,
+      this.height / 2,
+      Ball.SIZE / 2, // Radius is half the size
+      Ball.BALL_PHYSICS
+    );
+    this.body.plugin.particle = this;
+
+    Composite.add(this.engine.world, this.body);
     // Reset velocity
     this.push();
   }
 
   push() {
+    const xSpeed = 5 * random([-1, 1]); // Random initial x velocity
+    const ySpeed = 5 * random([-1, 1]); // Random initial y velocity
+
     Body.setVelocity(this.body, {
-      x: 5 * (Math.random() < 0.5 ? 1 : -1), // Random initial direction
-      y: 5 * (Math.random() < 0.5 ? 1 : -1), // Random initial direction
+      x: xSpeed, // Random initial direction
+      y: ySpeed, // Random initial direction
     });
   }
 }
