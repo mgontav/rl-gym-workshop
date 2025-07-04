@@ -8,10 +8,9 @@ class Pong extends Game {
   static P1_OPTIONS = {
     side: "left",
     color: "blue",
-    height: 40, // Less than 60 for an easier learning task
     controls: {
       type: "ai",
-      model: "followBall",
+      model: "rl",
     },
   };
 
@@ -156,11 +155,7 @@ class Pong extends Game {
   // players after the game logic has been updated.
   postTick() {
     this.players.forEach((player, index) => {
-      this.rewards[index] +=
-        (1 -
-          Math.abs(player.body.position.y - this.ball.body.position.y) /
-            this.options.height) *
-        0.5; // Reward based on position difference
+      this.rewards[index] += 0.5 * player.getPseudoReward();
       player.getReward(this.rewards[index]);
     });
 

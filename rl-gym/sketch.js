@@ -70,7 +70,7 @@ function createControlPanel() {
   });
 
   // Create a slider to control the time step of the physics engine
-  timeSlider = createSlider(1, 100, 1);
+  timeSlider = createSlider(1, 500, 1);
   timeSlider.style("width", "150px");
 
   canvas.parent("canvas-container");

@@ -5,7 +5,7 @@ const { Body, Bodies, Composite } = Matter;
 class PongPlayer {
   static PLAYER_WIDTH = 5; // Width of the player paddle
   static PLAYER_HEIGHT = 60; // Height of the player paddle
-  static MOVE_SPEED = 5; // Speed of the player paddle movement
+  static MOVE_SPEED = 10; // Speed of the player paddle movement
 
   constructor(game, engine, width, height, wallWidth, playerOptions) {
     this.game = game;
@@ -18,7 +18,7 @@ class PongPlayer {
     this.color = playerOptions.color;
     this.controls = playerOptions.controls;
 
-    this.paddleHeight = playerOptions.height || PongPlayer.PLAYER_HEIGHT; // Height of the paddle, can be
+    this.paddleHeight = playerOptions.height || PongPlayer.PLAYER_HEIGHT;
 
     this.wallWidth = wallWidth;
 
@@ -102,6 +102,33 @@ class PongPlayer {
       // If using RL, we can pass the reward to the brain
       this.brain.learn(reward);
     }
+  }
+
+  getPseudoReward() {
+    // If the ball is moving towards the player and the player is in the right position,
+    // we can give a positive reward, otherwise a negative one.
+    const ball = this.game.ball.body;
+
+    const ballY = ball.position.y;
+    const playerY = this.body.position.y;
+
+    const deltaY = Math.abs(ballY - playerY);
+    const positionError =
+      deltaY <= this.paddleHeight / 2 ? 0 : deltaY / this.height;
+
+    const ballX = ball.position.x;
+    const playerX = this.body.position.x;
+
+    const deltaX = Math.pow(Math.abs(ballX - playerX) / this.width, 2);
+
+    const ballVelocityX = ball.velocity.x;
+    const isBallMovingTowardsPlayer =
+      (this.side === "left" && ballVelocityX < 0) ||
+      (this.side === "right" && ballVelocityX > 0);
+
+    return (
+      (1 - positionError) * (1 - deltaX) * (isBallMovingTowardsPlayer ? 1 : 0)
+    );
   }
 
   reset() {
