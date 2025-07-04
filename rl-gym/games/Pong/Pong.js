@@ -8,9 +8,10 @@ class Pong extends Game {
   static P1_OPTIONS = {
     side: "left",
     color: "blue",
+    height: 40, // Less than 60 for an easier learning task
     controls: {
       type: "ai",
-      model: "followBall", // AI model to follow the ball
+      model: "followBall",
     },
   };
 
@@ -18,8 +19,8 @@ class Pong extends Game {
     side: "right",
     color: "red",
     controls: {
-      type: "keyboard",
-      keys: [38, 40],
+      type: "ai",
+      model: "rl",
     },
   };
 
@@ -30,6 +31,8 @@ class Pong extends Game {
     this.engine.world.gravity.y = 0; // No gravity in Pong
 
     this.score = [0, 0];
+    this.rewards = [0, 0];
+    this.restart = false; // Flag to indicate if the game should be restarted
 
     // Initialize the two players
     this.players = [
@@ -145,7 +148,26 @@ class Pong extends Game {
   }
 
   tick() {
+    this.rewards = [0, 0]; // Reset rewards for each tick
     this.players.forEach((player) => player.update());
+  }
+
+  // We use the postTick method to pass on rewards to the
+  // players after the game logic has been updated.
+  postTick() {
+    this.players.forEach((player, index) => {
+      this.rewards[index] +=
+        (1 -
+          Math.abs(player.body.position.y - this.ball.body.position.y) /
+            this.options.height) *
+        0.5; // Reward based on position difference
+      player.getReward(this.rewards[index]);
+    });
+
+    if (this.restart) {
+      this.reset();
+      this.restart = false; // Reset the restart flag
+    }
   }
 
   reset() {
@@ -166,6 +188,13 @@ class Pong extends Game {
       ) {
         this.handleWallCollision(bodyA, bodyB);
       }
+
+      if (
+        Game.pairIsCollisionBetween(bodyA, bodyB, Ball, PongPlayer) ||
+        Game.pairIsCollisionBetween(bodyA, bodyB, PongPlayer, Ball)
+      ) {
+        this.handlePlayerCollision(bodyA, bodyB);
+      }
     }
   }
 
@@ -173,11 +202,27 @@ class Pong extends Game {
     if (bodyA.label === "leftGoal" || bodyB.label === "leftGoal") {
       // Right player scores
       this.score[1]++;
-      this.reset();
+      this.rewards[1] += 10; // Reward for right player
+      this.rewards[0] -= 10; // Penalty for left player
+      this.restart = true;
     } else if (bodyA.label === "rightGoal" || bodyB.label === "rightGoal") {
       // Left player scores
       this.score[0]++;
-      this.reset();
+      this.rewards[0] += 10; // Reward for left player
+      this.rewards[1] -= 10; // Penalty for right player
+      this.restart = true;
+    }
+  }
+
+  handlePlayerCollision(bodyA, bodyB) {
+    const player = Game.getInstanceFromCollision(bodyA, bodyB, PongPlayer);
+
+    if (player.side === "left") {
+      // Left player hits the ball
+      this.rewards[0] += 1; // Reward for left player
+    } else if (player.side === "right") {
+      // Right player hits the ball
+      this.rewards[1] += 1; // Reward for right player
     }
   }
 }

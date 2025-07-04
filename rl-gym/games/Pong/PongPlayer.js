@@ -1,3 +1,5 @@
+import { RLBrain } from "./RLBrain.js";
+
 const { Body, Bodies, Composite } = Matter;
 
 class PongPlayer {
@@ -9,9 +11,14 @@ class PongPlayer {
     this.game = game;
     this.engine = engine;
 
+    this.width = width;
+    this.height = height;
+
     this.side = playerOptions.side; // "left" or "right"
     this.color = playerOptions.color;
     this.controls = playerOptions.controls;
+
+    this.paddleHeight = playerOptions.height || PongPlayer.PLAYER_HEIGHT; // Height of the paddle, can be
 
     this.wallWidth = wallWidth;
 
@@ -24,7 +31,7 @@ class PongPlayer {
       this.xPosition,
       height / 2,
       PongPlayer.PLAYER_WIDTH,
-      PongPlayer.PLAYER_HEIGHT,
+      this.paddleHeight,
       {
         isStatic: true,
       }
@@ -33,14 +40,20 @@ class PongPlayer {
 
     Composite.add(this.engine.world, this.body);
 
+    /* Initialize the player with AI controls if specified. */
+    this.nSensors = 5;
+    this.actions = ["up", "down", "stay"]; // Possible actions for the player
+
     // Setup AI controls if they are specified
     if (this.controls.type === "ai") {
       if (this.controls.model === "followBall") {
         this.brain = {
           act: this.moveWithBall.bind(this),
+          reset: () => {}, // No reset needed for this simple model
         };
-      } else {
+      } else if (this.controls.model === "rl") {
         // Add other AI models here
+        this.brain = new RLBrain(this.nSensors, this.actions);
       }
     }
   }
@@ -53,7 +66,7 @@ class PongPlayer {
       this.body.position.x,
       this.body.position.y,
       PongPlayer.PLAYER_WIDTH,
-      PongPlayer.PLAYER_HEIGHT
+      this.paddleHeight
     );
     pop();
   }
@@ -62,7 +75,32 @@ class PongPlayer {
     if (this.controls.type === "keyboard") {
       this.moveWithKeyboard();
     } else {
-      this.brain.act();
+      let inputs = this.sense();
+
+      let action = this.brain.act(inputs);
+      this.move(action);
+    }
+  }
+
+  // Sense the environment
+  sense() {
+    // For simplicity, we can return the position of the player and the ball
+    // We normalize the values to be between 0 and 1 based on the game dimensions
+    // and a normalized ball velocity
+    const ball = this.game.ball.body;
+    return [
+      this.body.position.y / this.height, // Player Y position
+      ball.position.x / this.width, // Ball X position
+      ball.position.y / this.height, // Ball Y position
+      ball.velocity.y / 10,
+      ball.velocity.x / 10,
+    ];
+  }
+
+  getReward(reward) {
+    if (this.controls.type === "ai" && this.controls.model === "rl") {
+      // If using RL, we can pass the reward to the brain
+      this.brain.learn(reward);
     }
   }
 
@@ -72,6 +110,10 @@ class PongPlayer {
       x: this.xPosition,
       y: height / 2,
     });
+
+    if (this.brain) {
+      this.brain.reset();
+    }
   }
 
   move(direction) {
@@ -108,9 +150,11 @@ class PongPlayer {
     let deltaY = targetY - this.body.position.y;
 
     if (deltaY > 0) {
-      this.move("down");
+      return "down";
     } else if (deltaY < 0) {
-      this.move("up");
+      return "up";
+    } else {
+      return "stay"; // No movement needed
     }
   }
 }

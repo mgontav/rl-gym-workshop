@@ -3,7 +3,7 @@ const { Body, Bodies, Composite } = Matter;
 class Ball {
   static SIZE = 15; // Size of the ball
   static BALL_PHYSICS = {
-    restitution: 1.005, // Bouncy and gains a bit of speed on each bounce
+    restitution: 1.01, // Bouncy and gains a bit of speed on each bounce
     inertia: Infinity, // Infinite inertia to prevent rotation
     friction: 0, // No frictionw
     frictionAir: 0, // No air friction
@@ -16,9 +16,13 @@ class Ball {
     this.width = width;
     this.height = height;
 
+    this.spawnBall();
+  }
+
+  spawnBall() {
     this.body = Bodies.circle(
-      width / 2,
-      height / 2,
+      this.width / 2,
+      this.height / 2 + random(-50, 50), // Random vertical offset for initial position
       Ball.SIZE / 2, // Radius is half the size
       Ball.BALL_PHYSICS
     );
@@ -36,25 +40,13 @@ class Ball {
     fill("yellow");
     circle(this.body.position.x, this.body.position.y, Ball.SIZE);
     pop();
-
-    console.log(`Ball Y velocity: ${this.body.velocity.y}`);
   }
 
   reset() {
     // Reset the ball to the center of the screen
     Composite.remove(this.engine.world, this.body);
 
-    this.body = Bodies.circle(
-      this.width / 2,
-      this.height / 2,
-      Ball.SIZE / 2, // Radius is half the size
-      Ball.BALL_PHYSICS
-    );
-    this.body.plugin.particle = this;
-
-    Composite.add(this.engine.world, this.body);
-    // Reset velocity
-    this.push();
+    this.spawnBall();
   }
 
   push() {
