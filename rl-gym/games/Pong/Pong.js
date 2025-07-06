@@ -5,24 +5,6 @@ import { Ball } from "./Ball.js";
 const { Bodies, Composite } = Matter;
 
 class Pong extends Game {
-  static P1_OPTIONS = {
-    side: "left",
-    color: "blue",
-    controls: {
-      type: "ai",
-      model: "rl",
-    },
-  };
-
-  static P2_OPTIONS = {
-    side: "right",
-    color: "red",
-    controls: {
-      type: "ai",
-      model: "rl",
-    },
-  };
-
   static WALL_WIDTH = 10;
 
   constructor(engine, options = {}) {
@@ -33,28 +15,16 @@ class Pong extends Game {
     this.rewards = [0, 0];
     this.restart = false; // Flag to indicate if the game should be restarted
 
+    this.wallWidth = Pong.WALL_WIDTH;
+
     // Initialize the two players
     this.players = [
-      new PongPlayer(
-        this,
-        engine,
-        options.width,
-        options.height,
-        Pong.WALL_WIDTH,
-        options.player1 || Pong.P1_OPTIONS
-      ),
-      new PongPlayer(
-        this,
-        engine,
-        options.width,
-        options.height,
-        Pong.WALL_WIDTH,
-        options.player2 || Pong.P2_OPTIONS
-      ),
+      new PongPlayer(this, options.player1),
+      new PongPlayer(this, options.player2),
     ];
 
     // Initialize the ball
-    this.ball = new Ball(engine, options.width, options.height);
+    this.ball = new Ball(this);
 
     this.createBounds(options.width, options.height);
   }

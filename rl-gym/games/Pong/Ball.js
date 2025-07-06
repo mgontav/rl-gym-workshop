@@ -11,18 +11,17 @@ class Ball {
     density: 0.001, // Low density for easy movement
   };
 
-  constructor(engine, width, height) {
-    this.engine = engine;
-    this.width = width;
-    this.height = height;
+  constructor(game) {
+    this.game = game;
+    this.engine = game.engine;
 
     this.spawnBall();
   }
 
   spawnBall() {
     this.body = Bodies.circle(
-      this.width / 2,
-      this.height / 2 + random(-50, 50), // Random vertical offset for initial position
+      this.game.width / 2,
+      this.game.height / 2 + random(-50, 50), // Random vertical offset for initial position
       Ball.SIZE / 2, // Radius is half the size
       Ball.BALL_PHYSICS
     );

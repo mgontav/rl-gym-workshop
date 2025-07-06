@@ -5,14 +5,11 @@ const { Body, Bodies, Composite } = Matter;
 class PongPlayer {
   static PLAYER_WIDTH = 5; // Width of the player paddle
   static PLAYER_HEIGHT = 60; // Height of the player paddle
-  static MOVE_SPEED = 10; // Speed of the player paddle movement
+  static MOVE_SPEED = 5; // Speed of the player paddle movement
 
-  constructor(game, engine, width, height, wallWidth, playerOptions) {
+  constructor(game, playerOptions) {
     this.game = game;
-    this.engine = engine;
-
-    this.width = width;
-    this.height = height;
+    this.engine = game.engine;
 
     this.side = playerOptions.side; // "left" or "right"
     this.color = playerOptions.color;
@@ -20,16 +17,14 @@ class PongPlayer {
 
     this.paddleHeight = playerOptions.height || PongPlayer.PLAYER_HEIGHT;
 
-    this.wallWidth = wallWidth;
-
     this.xPosition =
       this.side === "left"
-        ? wallWidth / 2 + PongPlayer.PLAYER_WIDTH / 2
-        : width - wallWidth / 2 - PongPlayer.PLAYER_WIDTH / 2;
+        ? game.wallWidth / 2 + PongPlayer.PLAYER_WIDTH / 2
+        : game.width - game.wallWidth / 2 - PongPlayer.PLAYER_WIDTH / 2;
 
     this.body = Bodies.rectangle(
       this.xPosition,
-      height / 2,
+      game.height / 2,
       PongPlayer.PLAYER_WIDTH,
       this.paddleHeight,
       {
@@ -89,9 +84,9 @@ class PongPlayer {
     // and a normalized ball velocity
     const ball = this.game.ball.body;
     return [
-      this.body.position.y / this.height, // Player Y position
-      ball.position.x / this.width, // Ball X position
-      ball.position.y / this.height, // Ball Y position
+      this.body.position.y / this.game.height, // Player Y position
+      ball.position.x / this.game.width, // Ball X position
+      ball.position.y / this.game.height, // Ball Y position
       ball.velocity.y / 10,
       ball.velocity.x / 10,
     ];
@@ -114,12 +109,12 @@ class PongPlayer {
 
     const deltaY = Math.abs(ballY - playerY);
     const positionError =
-      deltaY <= this.paddleHeight / 2 ? 0 : deltaY / this.height;
+      deltaY <= this.paddleHeight / 2 ? 0 : deltaY / this.game.height;
 
     const ballX = ball.position.x;
     const playerX = this.body.position.x;
 
-    const deltaX = Math.pow(Math.abs(ballX - playerX) / this.width, 2);
+    const deltaX = Math.pow(Math.abs(ballX - playerX) / this.game.width, 2);
 
     const ballVelocityX = ball.velocity.x;
     const isBallMovingTowardsPlayer =
@@ -135,7 +130,7 @@ class PongPlayer {
     // Reset the player position to the center of the screen
     Body.setPosition(this.body, {
       x: this.xPosition,
-      y: height / 2,
+      y: this.game.height / 2,
     });
 
     if (this.brain) {
@@ -144,8 +139,9 @@ class PongPlayer {
   }
 
   move(direction) {
-    const maxY = height - PongPlayer.PLAYER_HEIGHT / 2 - this.wallWidth / 2;
-    const minY = PongPlayer.PLAYER_HEIGHT / 2 + this.wallWidth / 2;
+    const maxY =
+      this.game.height - this.paddleHeight / 2 - this.game.wallWidth / 2;
+    const minY = this.paddleHeight / 2 + this.game.wallWidth / 2;
     let yMove = 0;
 
     if (direction === "up" && this.body.position.y > minY) {
