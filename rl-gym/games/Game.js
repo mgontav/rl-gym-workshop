@@ -2,6 +2,9 @@ class Game {
   constructor(engine, options = {}) {
     this.engine = engine;
     this.options = options;
+
+    this.width = options.width;
+    this.height = options.height;
   }
 
   draw() {

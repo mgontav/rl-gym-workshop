@@ -9,8 +9,8 @@ class TestGame extends Game {
   constructor(engine, options = {}) {
     super(engine, options);
 
-    this.PLATFORM_HEIGHT = this.options.height / 10;
-    this.PLATFORM_WIDTH = this.options.width * 0.8;
+    this.PLATFORM_WIDTH = this.width * 0.8;
+    this.PLATFORM_HEIGHT = this.height / 10;
 
     this.squares = [];
     this.platform = this.createPlatform();
@@ -67,7 +67,7 @@ class TestGame extends Game {
     this.handleMouseClick = (x, y) => {
       // Create a new square at the mouse position
       let size = random(20, 50);
-      let square = new Square(this.engine, x, y, size);
+      let square = new Square(this, x, y, size);
       this.squares.push(square);
     };
   }

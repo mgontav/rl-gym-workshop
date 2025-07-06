@@ -1,6 +1,5 @@
-import { Pong } from "./games/Pong/Pong.js";
-import { FlappyGame } from "./games/FlappyGame/FlappyGame.js";
-import { TestGame } from "./games/TestGame/TestGame.js";
+import { TestGameConfig } from "./games/GameConfigs.js";
+import { GameFactory } from "./games/GameFactory.js";
 
 const { Engine } = Matter;
 const WIDTH = 800,
@@ -23,30 +22,25 @@ function preload() {
   This is called once when the program starts.
 */
 function setup() {
-  canvas = createCanvas(WIDTH, HEIGHT);
   engine = Engine.create();
 
-  textFont(gameFont);
+  // (!) Change this to the game you want to test
+  // For example, you can change it to Pong, FlappyGame, etc.
+  // just remember to import the game configuration at the top of this file.
+  const gameConfig = TestGameConfig;
 
   /* CHOOSE YOUR GAME HERE */
-  // game = new TestGame(engine, {
-  //   width: WIDTH,
-  //   height: HEIGHT,
-  // });
+  game = GameFactory.createGame(
+    engine,
+    gameConfig // Change this to any game config you want to test
+  );
 
-  // game = new FlappyGame(engine, {
-  //   controls: "keyboard", // 'keyboard', 'mouse'
-  //   width: WIDTH,
-  //   height: HEIGHT,
-  // });
-
-  game = new Pong(engine, {
-    width: WIDTH,
-    height: HEIGHT,
-  });
-
+  // Set the physics engine event handlers to use our game logic
   Matter.Events.on(engine, "collisionStart", game.handleCollisions.bind(game));
 
+  // Setup our p5.js canvas and controls
+  canvas = createCanvas(game.width, game.height);
+  textFont(gameFont);
   createControlPanel();
 }
 

@@ -11,7 +11,10 @@ class Square {
     yellow: 0x0008,
   };
 
-  constructor(engine, x, y, size) {
+  constructor(game, x, y, size) {
+    this.game = game;
+    this.engine = game.engine;
+
     this.color = random(Square.colors);
     this.size = size;
 
@@ -23,7 +26,7 @@ class Square {
       },
     });
 
-    Composite.add(engine.world, this.body);
+    Composite.add(this.engine.world, this.body);
   }
 
   draw() {
