@@ -8,25 +8,25 @@ const { Bodies, Composite } = Matter;
 class FlappyGame extends Game {
   /* INITIALIZATION */
   static POPULATION_SIZE = 200;
+  static pipeInterval = 120; // Interval for pipe generation
 
   constructor(engine, options = {}) {
     super(engine, options);
     this.time = 0;
-    this.pipeInterval = 100; // Interval for pipe generation
 
     this.generation = 0;
     this.score = 0;
     this.maxScore = 0;
 
     ml5.setBackend("cpu"); // Set the backend for ml5.js
-    this.populationSize = options.populationSize || FlappyGame.POPULATION_SIZE;
+    this.populationSize = FlappyGame.POPULATION_SIZE;
 
     this.birds = [];
     for (let i = 0; i < this.populationSize; i++) {
-      this.birds.push(new Bird(engine, { evolution: true }));
+      this.birds.push(new Bird(this, { evolution: true }));
     }
 
-    this.pipes = [new Pipe(engine, options.width, options.height)];
+    this.pipes = [new Pipe(this)];
 
     this.createWorldBounds();
     this.setupInputHandlers();
@@ -138,8 +138,6 @@ class FlappyGame extends Game {
       if (bird.alive) {
         bird.update({
           pipes: this.pipes,
-          width: this.options.width,
-          height: this.options.height,
         });
       }
     }
@@ -156,11 +154,9 @@ class FlappyGame extends Game {
     }
 
     // Add new pipes at regular intervals
-    if (this.time % this.pipeInterval === 0) {
+    if (this.time % FlappyGame.pipeInterval === 0) {
       // Every 60 frames
-      this.pipes.push(
-        new Pipe(this.engine, this.options.width, this.options.height)
-      );
+      this.pipes.push(new Pipe(this));
     }
   }
 
@@ -177,9 +173,7 @@ class FlappyGame extends Game {
 
       let childBrain = Brain.createChild(brainA, brainB);
 
-      newBirds.push(
-        new Bird(this.engine, { evolution: true, brain: childBrain })
-      );
+      newBirds.push(new Bird(this, { evolution: true, brain: childBrain }));
     }
 
     this.birds = newBirds;

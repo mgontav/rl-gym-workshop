@@ -6,15 +6,18 @@ const { Bodies, Body, Composite } = Matter;
 class Bird {
   static collider = 0x002; // Unique identifier for the bird collider
   static COOLDOWN = 2;
-  static SIZE = 10;
+  static SIZE = 15;
+  static img = new p5().loadImage("../../assets/bird.png"); // Load bird image
 
-  constructor(engine, options = {}) {
-    this.size = Bird.SIZE;
+  constructor(game, options = {}) {
+    this.game = game;
+    this.engine = game.engine;
+
     this.alive = true; // Flag to check if the bird is alive
     this.score = 0;
     this.actionCooldown = 0;
 
-    this.body = Bodies.circle(100, 100 + random(-25, 25), this.size, {
+    this.body = Bodies.circle(100, 100 + random(-25, 25), Bird.SIZE, {
       collisionFilter: {
         category: Bird.collider, // Unique identifier for the bird collider
         mask: Pipe.collider, // Collide with pipes
@@ -22,7 +25,7 @@ class Bird {
     });
     this.body.plugin.particle = this; // For collision detection
 
-    Composite.add(engine.world, this.body);
+    Composite.add(this.engine.world, this.body);
 
     // If we're using evolution, we need to set up the neural network
     if (options.evolution) {
@@ -35,8 +38,18 @@ class Bird {
   }
 
   draw() {
-    fill(255, 0, 0);
-    ellipse(this.body.position.x, this.body.position.y, this.size * 2);
+    push();
+
+    imageMode(CENTER);
+    image(
+      Bird.img,
+      this.body.position.x,
+      this.body.position.y,
+      Bird.SIZE * 2,
+      Bird.SIZE * 2
+    );
+
+    pop();
   }
 
   update(context) {
@@ -46,10 +59,11 @@ class Bird {
       if (this.actionCooldown <= 0) {
         const nextPipe = this.findNextPipe(context.pipes);
         let inputs = [
-          this.body.position.y / context.height,
-          this.body.velocity.y / context.height,
-          nextPipe.topHeight / context.height,
-          (nextPipe.topPipe.position.x - this.body.position.x) / context.width,
+          this.body.position.y / this.game.height,
+          this.body.velocity.y / this.game.height,
+          nextPipe.topHeight / this.game.height,
+          (nextPipe.topPipe.position.x - this.body.position.x) /
+            this.game.width,
         ];
 
         let action = this.birdBrain.getAction(inputs);

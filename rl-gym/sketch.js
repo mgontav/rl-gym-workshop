@@ -1,4 +1,4 @@
-import { TestGameConfig } from "./games/GameConfigs.js";
+import { TestGameConfig, FlappyGameConfig } from "./games/GameConfigs.js";
 import { GameFactory } from "./games/GameFactory.js";
 
 const { Engine } = Matter;
@@ -24,10 +24,10 @@ function preload() {
 function setup() {
   engine = Engine.create();
 
-  // (!) Change this to the game you want to test
+  // !!! CHANGE GAME HERE !!!
   // For example, you can change it to Pong, FlappyGame, etc.
   // just remember to import the game configuration at the top of this file.
-  const gameConfig = TestGameConfig;
+  const gameConfig = FlappyGameConfig;
 
   /* CHOOSE YOUR GAME HERE */
   game = GameFactory.createGame(

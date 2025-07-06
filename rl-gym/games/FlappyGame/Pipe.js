@@ -5,17 +5,20 @@ const { Bodies, Body, Composite } = Matter;
 class Pipe {
   static collider = 0x001; // Unique identifier for the pipe collider
 
-  constructor(engine, width, height) {
-    this.spacing = 150;
-    this.pipeWidth = 30;
+  constructor(game) {
+    this.game = game;
+    this.engine = game.engine;
+
+    this.spacing = 200;
+    this.pipeWidth = 35;
     this.velocity = 3;
 
-    this.holeCenter = random(this.spacing / 2, height - this.spacing / 2);
-    this.topHeight = height - (this.holeCenter + this.spacing / 2);
-    this.bottomHeight = height - (this.topHeight + this.spacing);
+    this.holeCenter = random(this.spacing / 2, game.height - this.spacing / 2);
+    this.topHeight = game.height - (this.holeCenter + this.spacing / 2);
+    this.bottomHeight = game.height - (this.topHeight + this.spacing);
 
     this.topPipe = Bodies.rectangle(
-      width + this.pipeWidth / 2,
+      game.width + this.pipeWidth / 2,
       0 + this.topHeight / 2,
       this.pipeWidth,
       this.topHeight,
@@ -29,15 +32,15 @@ class Pipe {
     );
 
     this.bottomPipe = Bodies.rectangle(
-      width + this.pipeWidth / 2,
-      height - this.bottomHeight / 2,
+      game.width + this.pipeWidth / 2,
+      game.height - this.bottomHeight / 2,
       this.pipeWidth,
       this.bottomHeight,
       { isStatic: true }
     );
 
     // Add our pipe components to the physics engine
-    Composite.add(engine.world, [this.topPipe, this.bottomPipe]);
+    Composite.add(this.engine.world, [this.topPipe, this.bottomPipe]);
     this.topPipe.plugin.particle = this; // For collision detection
     this.bottomPipe.plugin.particle = this; // For collision detection
   }

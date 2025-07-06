@@ -4,4 +4,15 @@ const TestGameConfig = {
   height: 400,
 };
 
-export { TestGameConfig };
+const FlappyGameConfig = {
+  game: "FlappyGame",
+  width: 800,
+  height: 600,
+};
+
+const PongConfig = {
+  game: "Pong",
+  width: 800,
+};
+
+export { TestGameConfig, FlappyGameConfig };
