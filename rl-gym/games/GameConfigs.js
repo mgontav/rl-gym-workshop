@@ -8,6 +8,7 @@ const FlappyGameConfig = {
   game: "FlappyGame",
   width: 800,
   height: 600,
+  controls: "mouse",
 };
 
 const PongConfig = {

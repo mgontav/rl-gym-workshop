@@ -1,30 +1,21 @@
 import { Game } from "../Game.js";
 import { Pipe } from "./Pipe.js";
 import { Bird } from "./Bird.js";
-import { Brain } from "./Brain.js";
 
 const { Bodies, Composite } = Matter;
 
 class FlappyGame extends Game {
   /* INITIALIZATION */
-  static POPULATION_SIZE = 200;
   static pipeInterval = 120; // Interval for pipe generation
 
   constructor(engine, options = {}) {
     super(engine, options);
     this.time = 0;
 
-    this.generation = 0;
     this.score = 0;
     this.maxScore = 0;
 
-    ml5.setBackend("cpu"); // Set the backend for ml5.js
-    this.populationSize = FlappyGame.POPULATION_SIZE;
-
-    this.birds = [];
-    for (let i = 0; i < this.populationSize; i++) {
-      this.birds.push(new Bird(this, { evolution: true }));
-    }
+    this.bird = new Bird(this);
 
     this.pipes = [new Pipe(this)];
 
@@ -66,20 +57,16 @@ class FlappyGame extends Game {
   setupInputHandlers() {
     if (this.options.controls == "mouse") {
       this.handleMouseClick = (x, y) => {
-        this.birds.forEach((bird) => {
-          if (bird.alive) {
-            bird.flap(); // Make the bird flap when mouse is clicked
-          }
-        });
+        if (this.bird.alive) {
+          this.bird.flap(); // Make the bird flap when mouse is clicked
+        }
       };
     } else if (this.options.controls == "keyboard") {
       this.handleKeyPress = (key) => {
         if (key === " ") {
-          this.birds.forEach((bird) => {
-            if (bird.alive) {
-              bird.flap(); // Make the bird flap when space is pressed
-            }
-          });
+          if (this.bird.alive) {
+            this.bird.flap(); // Make the bird flap when space is pressed
+          }
         }
       };
     }
@@ -92,12 +79,10 @@ class FlappyGame extends Game {
   /* DISPLAY METHODS */
 
   draw() {
-    // Draw all birds
-    this.birds.forEach((bird) => {
-      if (bird.alive) {
-        bird.draw();
-      }
-    });
+    // Draw bird
+    if (this.bird.alive) {
+      this.bird.draw();
+    }
 
     // Draw all Pipes
     this.pipes.forEach((pipe) => pipe.draw());
@@ -112,8 +97,6 @@ class FlappyGame extends Game {
     textAlign(LEFT, TOP);
     text(`Score: ${this.score}`, 10, 10);
     text(`Max Score: ${this.maxScore}`, 10, 30);
-    text(`Generation: ${this.generation}`, 10, 50);
-    text(`Birds Alive: ${this.birds.filter((b) => b.alive).length}`, 10, 70);
   }
 
   /* GAME LOGIC METHODS */
@@ -125,21 +108,12 @@ class FlappyGame extends Game {
 
     this.updateBirds();
     this.updatePipes();
-
-    if (this.birds.every((bird) => !bird.alive)) {
-      // If all birds are dead, reset the game
-      this.resetGame();
-    }
   }
 
   updateBirds() {
     // Update all Birds
-    for (let bird of this.birds) {
-      if (bird.alive) {
-        bird.update({
-          pipes: this.pipes,
-        });
-      }
+    if (this.bird.alive) {
+      this.bird.update();
     }
   }
 
@@ -160,23 +134,15 @@ class FlappyGame extends Game {
     }
   }
 
+  postTick() {
+    if (!this.bird.alive) {
+      this.resetGame(); // Reset the game if the bird is not alive
+    }
+  }
+
   resetGame() {
     // Reset the game state
-
-    // Create a new bird population
-    let newBirds = [];
-    Brain.normalizeScore(this.birds);
-
-    for (let i = 0; i < this.populationSize; i++) {
-      let brainA = Brain.weighedSelection(this.birds);
-      let brainB = Brain.weighedSelection(this.birds);
-
-      let childBrain = Brain.createChild(brainA, brainB);
-
-      newBirds.push(new Bird(this, { evolution: true, brain: childBrain }));
-    }
-
-    this.birds = newBirds;
+    this.bird = new Bird(this);
 
     // Remove all pipes but the last one and re-initialize
     for (let i = 0; i < this.pipes.length - 1; i++) {
@@ -188,7 +154,6 @@ class FlappyGame extends Game {
 
     // Reset game stats
     this.score = 0;
-    this.generation++;
   }
 
   /* COLLISION HANDLING */

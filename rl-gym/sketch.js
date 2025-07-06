@@ -4,7 +4,6 @@ import {
   PongConfig,
 } from "./games/GameConfigs.js";
 import { GameFactory } from "./games/GameFactory.js";
-import { Pong } from "./games/Pong/Pong.js";
 
 const { Engine } = Matter;
 const WIDTH = 800,
@@ -32,7 +31,7 @@ function setup() {
   // !!! CHANGE GAME HERE !!!
   // For example, you can change it to Pong, FlappyGame, etc.
   // just remember to import the game configuration at the top of this file.
-  const gameConfig = PongConfig;
+  const gameConfig = FlappyGameConfig;
 
   /* CHOOSE YOUR GAME HERE */
   game = GameFactory.createGame(
