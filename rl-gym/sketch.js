@@ -2,6 +2,7 @@ import {
   TestGameConfig,
   FlappyGameConfig,
   PongConfig,
+  CircleWorldConfig,
 } from "./games/GameConfigs.js";
 import { GameFactory } from "./games/GameFactory.js";
 import { Pong } from "./games/Pong/Pong.js";
@@ -32,7 +33,7 @@ function setup() {
   // !!! CHANGE GAME HERE !!!
   // For example, you can change it to Pong, FlappyGame, etc.
   // just remember to import the game configuration at the top of this file.
-  const gameConfig = PongConfig;
+  const gameConfig = CircleWorldConfig;
 
   /* CHOOSE YOUR GAME HERE */
   game = GameFactory.createGame(
@@ -41,7 +42,7 @@ function setup() {
   );
 
   // Set the physics engine event handlers to use our game logic
-  Matter.Events.on(engine, "collisionStart", game.handleCollisions.bind(game));
+  // Matter.Events.on(engine, "collisionStart", game.handleCollisions.bind(game));
 
   // Setup our p5.js canvas and controls
   canvas = createCanvas(game.width, game.height);
