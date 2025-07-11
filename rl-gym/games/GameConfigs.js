@@ -35,10 +35,9 @@ const PongConfig = {
 const CircleWorldConfig = {
   game: "CircleWorld",
   width: 800,
-  height: 600,
-  nRunners: 1,
-  nHunters: 10,
-  nFood: 5,
+  height: 800,
+  nBears: 5,
+  nRabbits: 20,
 };
 
 export { TestGameConfig, FlappyGameConfig, PongConfig, CircleWorldConfig };

@@ -1,26 +1,26 @@
 const { Bodies, Composite, Constraint } = Matter;
 import { Sensor } from "./Sensor.js";
 
-class Runner {
-  static SIZE = 20;
+class Hunter {
+  static SIZE = 15;
   static COLOR = "blue";
-  static N_SENSORS = 8;
+  static N_SENSORS = 64;
 
   constructor(game) {
     this.game = game;
     this.controls = "mouse"; // Default control type
 
-    this.size = Runner.SIZE;
+    this.size = Hunter.SIZE;
 
-    this.createRunner();
+    this.createHunter();
     this.createSensors();
   }
 
-  createRunner() {
+  createHunter() {
     this.body = Bodies.circle(
       this.game.width / 2,
       this.game.height / 2,
-      Runner.SIZE,
+      Hunter.SIZE,
       {
         inertia: Infinity,
       }
@@ -41,18 +41,18 @@ class Runner {
 
   createSensors() {
     this.sensors = [];
-    const angleStep = (2 * Math.PI) / Runner.N_SENSORS;
-    for (let i = 0; i < Runner.N_SENSORS; i++) {
+    const angleStep = (2 * Math.PI) / Hunter.N_SENSORS;
+    for (let i = 0; i < Hunter.N_SENSORS; i++) {
       const angle = i * angleStep;
-      this.sensors.push(new Sensor(this, angle));
+      this.sensors.push(new Sensor(this, angle, this.game.agentClasses));
     }
   }
 
   draw() {
     push();
-    fill(Runner.COLOR);
+    fill(Hunter.COLOR);
     noStroke();
-    ellipse(this.body.position.x, this.body.position.y, Runner.SIZE * 2);
+    ellipse(this.body.position.x, this.body.position.y, Hunter.SIZE * 2);
     pop();
 
     this.sensors.forEach((sensor) => {
@@ -74,4 +74,4 @@ class Runner {
   }
 }
 
-export { Runner };
+export { Hunter };

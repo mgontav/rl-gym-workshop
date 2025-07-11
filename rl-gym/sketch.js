@@ -42,7 +42,7 @@ function setup() {
   );
 
   // Set the physics engine event handlers to use our game logic
-  // Matter.Events.on(engine, "collisionStart", game.handleCollisions.bind(game));
+  Matter.Events.on(engine, "collisionStart", game.handleCollisions.bind(game));
 
   // Setup our p5.js canvas and controls
   canvas = createCanvas(game.width, game.height);

@@ -1,19 +1,29 @@
 import { Game } from "../Game.js";
-import { Runner } from "./Runner.js";
+import { Hunter } from "./Hunter.js";
+import { Bear } from "./Bear.js";
+import { Rabbit } from "./Rabbit.js";
 const { Bodies, Composite } = Matter;
 
 class CircleWorld extends Game {
+  static AGENT_CLASSES = {
+    "hunter": Hunter,
+    "bear": Bear,
+    "rabbit": Rabbit,
+    "wall": null
+  };
+
   constructor(engine, gameConfig) {
     super(engine, gameConfig);
     this.engine.world.gravity.y = 0; // No gravity in top-down world
 
-    this.nRunners = gameConfig.nRunners || 1;
-    this.nHunters = gameConfig.nHunters || 10;
-    this.nFood = gameConfig.nFood || 5;
+    this.nBears = gameConfig.nBears || 10;
+    this.nRabbits = gameConfig.nRabbits || 5;
 
-    this.runners = [];
-    this.hunters = [];
-    this.food = [];
+    this.hunter = null;
+    this.bears = [];
+    this.rabbits = [];
+
+    this.agentClasses = CircleWorld.AGENT_CLASSES;
 
     this.setupGame();
     this.createAgents();
@@ -23,6 +33,7 @@ class CircleWorld extends Game {
     const wallOptions = {
       isStatic: true,
       plugin: { particle: this },
+      label: "wall"
     };
 
     // Create world boundaries
@@ -47,10 +58,17 @@ class CircleWorld extends Game {
   }
 
   createAgents() {
-    // Create runners
-    for (let i = 0; i < this.nRunners; i++) {
-      const runner = new Runner(this);
-      this.runners.push(runner);
+    // Create hunter
+    this.hunter = new Hunter(this);
+
+    for (let i = 0; i < this.nBears; i++) {
+      const bear = new Bear(this);
+      this.bears.push(bear);
+    }
+
+    for (let i = 0; i < this.nRabbits; i++) {
+      const rabbit = new Rabbit(this);
+      this.rabbits.push(rabbit);
     }
   }
 
@@ -68,27 +86,27 @@ class CircleWorld extends Game {
   draw() {
     this.drawWorldBounds();
 
-    this.runners.forEach((runner) => {
-      runner.draw();
+    this.hunter.draw();
+
+    this.bears.forEach((bear) => {
+      bear.draw();
     });
-    this.hunters.forEach((hunter) => {
-      hunter.draw();
-    });
-    this.food.forEach((foodItem) => {
-      foodItem.draw();
+
+    this.rabbits.forEach((rabbit) => {
+      rabbit.draw();
     });
   }
 
   tick() {
     // Update game logic here
-    this.runners.forEach((runner) => {
-      runner.update();
+    this.hunter.update();
+
+    this.bears.forEach((bear) => {
+      bear.update();
     });
-    this.hunters.forEach((hunter) => {
-      hunter.update();
-    });
-    this.food.forEach((foodItem) => {
-      foodItem.update();
+
+    this.rabbits.forEach((rabbit) => {
+      rabbit.update();
     });
   }
 }
